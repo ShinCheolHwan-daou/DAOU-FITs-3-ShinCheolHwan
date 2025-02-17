@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="example.MyBook">
+    <select id="selectBooksByKeywordAndPrice" parameterType="Map" resultType="Book">
+        <!--  CDATA : SQL Query 안의 특수문자가 tag로 인식되지 않도록 처리  -->
+        <![CDATA[
+        SELECT BISBN, BTITLE, BPRICE, BAUTHOR
+        FROM BOOK
+        WHERE BTITLE LIKE #{keyword}
+        AND BPRICE <= #{price}
+        ORDER BY BISBN
+        ]]>
+    </select>
+    <select id="selectBookByIsbn" parameterType="String" resultType="Book">
+        <![CDATA[
+        SELECT *
+        FROM BOOK
+        WHERE BISBN = #{keyword}
+        ]]>
+    </select>
+</mapper>
