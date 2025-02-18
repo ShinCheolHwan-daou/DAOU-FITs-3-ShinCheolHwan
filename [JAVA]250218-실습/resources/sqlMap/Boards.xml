@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mappers.boards">
+    <resultMap id="boardWithWriter" type="com.example.myboardproject.vo.BoardVO">
+        <id column="BOARD_ID" property="id"/>
+        <result column="TITLE" property="title"/>
+        <result column="CONTENT" property="content"/>
+        <result column="CREATED_AT" property="createdAt"/>
+        <result column="UPDATED_AT" property="updatedAt"/>
+        <result column="DELETED_AT" property="deletedAt"/>
+        <association javaType="com.example.myboardproject.vo.MemberVO" property="writer">
+            <id column="WRITER_ID" property="id"/>
+            <result column="WRITER_NAME" property="name"/>
+            <result column="WRITER_PASSWORD" property="password"/>
+        </association>
+    </resultMap>
+    <select id="selectAllBoards" resultMap="boardWithWriter">
+        <![CDATA[
+        SELECT B.ID       AS BOARD_ID,
+               B.TITLE,
+               B.CONTENT,
+               B.CREATED_AT,
+               B.UPDATED_AT,
+               B.DELETED_AT,
+               M.ID       AS WRITER_ID,
+               M.NAME     AS WRITER_NAME,
+               M.PASSWORD AS WRITER_PASSWORD
+        FROM BOARDS B,
+             MEMBERS M
+        WHERE B.WRITER_ID = M.ID
+          AND DELETED_AT IS NULL
+        ORDER BY B.ID DESC
+        ]]>
+    </select>
+    <select id="selectBoardById" parameterType="int" resultMap="boardWithWriter">
+        <![CDATA[
+        SELECT B.ID       AS BOARD_ID,
+               B.TITLE,
+               B.CONTENT,
+               B.CREATED_AT,
+               B.UPDATED_AT,
+               B.DELETED_AT,
+               M.ID       AS WRITER_ID,
+               M.NAME     AS WRITER_NAME,
+               M.PASSWORD AS WRITER_PASSWORD
+        FROM BOARDS B,
+             MEMBERS M
+        WHERE B.WRITER_ID = M.ID
+          AND DELETED_AT IS NULL
+          AND B.ID = #{boardId}
+        ]]>
+    </select>
+    <update id="deleteBoardById" parameterType="int">
+        <![CDATA[
+        UPDATE BOARDS
+        SET DELETED_AT = SYSTIMESTAMP
+        WHERE ID = #{boardId}
+        ]]>
+    </update>
+    <insert id="insertBoard" parameterType="Map" >
+        <![CDATA[
+        INSERT INTO BOARDS (TITLE, CONTENT, WRITER_ID)
+        VALUES (#{title}, #{content}, #{writerId})
+        ]]>
+    </insert>
+</mapper>
