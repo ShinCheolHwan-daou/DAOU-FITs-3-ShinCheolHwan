@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mappers.comments">
+    <resultMap id="commentWithWriter" type="com.example.myboardproject.vo.CommentVO">
+        <id column="COMMENT_ID" property="id"/>
+        <result column="CONTENT" property="content"/>
+        <result column="BOARD_ID" property="boardId"/>
+        <result column="CREATED_AT" property="createdAt"/>
+        <result column="UPDATED_AT" property="updatedAt"/>
+        <result column="DELETED_AT" property="deletedAt"/>
+        <association javaType="com.example.myboardproject.vo.MemberVO" property="writer">
+            <id column="WRITER_ID" property="id"/>
+            <result column="WRITER_NAME" property="name"/>
+            <result column="WRITER_PASSWORD" property="password"/>
+        </association>
+    </resultMap>
+    <select id="selectCommentsByBoardId" parameterType="int" resultMap="commentWithWriter">
+        <![CDATA[
+        SELECT C.ID         AS COMMENT_ID,
+               C.CONTENT    AS CONTENT,
+               C.BOARD_ID   AS BOARD_ID,
+               C.CREATED_AT AS CREATED_AT,
+               C.UPDATED_AT AS UPDATED_AT,
+               C.DELETED_AT AS DELETED_AT,
+               M.ID         AS WRITER_ID,
+               M.PASSWORD   AS WRITER_PASSWORD,
+               M.NAME       AS WRITER_NAME
+        FROM COMMENTS C,
+             MEMBERS M
+        WHERE C.WRITER_ID = M.ID
+          AND C.DELETED_AT IS NULL
+          AND C.BOARD_ID = #{boradId}
+        ORDER BY C.ID
+        ]]>
+    </select>
+    <select id="selectCommentById" parameterType="int" resultMap="commentWithWriter">
+        <![CDATA[
+        SELECT C.ID         AS COMMENT_ID,
+               C.CONTENT    AS CONTENT,
+               C.BOARD_ID   AS BOARD_ID,
+               C.CREATED_AT AS CREATED_AT,
+               C.UPDATED_AT AS UPDATED_AT,
+               C.DELETED_AT AS DELETED_AT,
+               M.ID         AS WRITER_ID,
+               M.PASSWORD   AS WRITER_PASSWORD,
+               M.NAME       AS WRITER_NAME
+        FROM COMMENTS C,
+             MEMBERS M
+        WHERE C.WRITER_ID = M.ID
+          AND C.DELETED_AT IS NULL
+          AND C.ID = #{commentId}
+        ]]>
+    </select>
+<!--todo-->
+    <insert id="insertComment" parameterType="Comment" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        <![CDATA[
+        INSERT INTO COMMENTS (CONTENT, BOARD_ID, WRITER_ID)
+        VALUES (#{content}, #{boardId}, #{writer.id})
+        ]]>
+    </insert>
+    <update id="deleteComment" parameterType="int">
+        <![CDATA[
+        UPDATE COMMENTS
+        SET DELETED_AT = SYSTIMESTAMP
+        WHERE ID = #{commentId}
+          AND DELETED_AT IS NULL
+        ]]>
+    </update>
+</mapper>

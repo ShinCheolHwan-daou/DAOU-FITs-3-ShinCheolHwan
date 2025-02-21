@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org/DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.example.mappers.boardlikes">
+    <resultMap id="boardLike" type="com.example.myboardproject.vo.BoardLikeVO">
+        <id column="BOARD_ID" property="boardId"/>
+        <id column="MEMBER_ID" property="memberId"/>
+        <result column="CREATED_AT" property="createdAt"/>
+        <result column="UPDATED_AT" property="updatedAt"/>
+        <result column="DELETED_AT" property="deletedAt"/>
+    </resultMap>
+
+    <select id="getBoardLikeByPk" parameterType="Map" resultMap="boardLike">
+        <![CDATA[
+        SELECT *
+        FROM BOARD_LIKES
+        WHERE BOARD_ID = #{boardId}
+          AND MEMBER_ID = #{memberId}
+          and DELETED_AT IS NULL
+        ]]>
+    </select>
+
+    <insert id="upsertBoardLike">
+        <![CDATA[
+        MERGE INTO BOARD_LIKES BL
+        USING DUAL
+        ON (BL.BOARD_ID = #{boardId} AND BL.MEMBER_ID = #{memberId})
+        WHEN MATCHED THEN
+            UPDATE
+            SET BL.DELETED_AT = NULL
+        WHEN NOT MATCHED THEN
+            INSERT (BL.BOARD_ID, BL.MEMBER_ID)
+            VALUES (#{boardId}, #{memberId})
+        ]]>
+    </insert>
+    <update id="deleteBoardLike">
+        <![CDATA[
+        UPDATE BOARD_LIKES
+        SET DELETED_AT = SYSTIMESTAMP
+        WHERE BOARD_ID = #{boardId}
+          AND MEMBER_ID = #{memberId}
+          AND DELETED_AT IS NULL
+        ]]>
+    </update>
+</mapper>
