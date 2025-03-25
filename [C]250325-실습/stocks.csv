@@ -1,0 +1,3 @@
+"ID", "CUSTOMER_NAME", "STOCK_NAME", "TYPE", "AMOUNT"
+1, "aa", "samsung", 0, 100, 50000.000000
+3, "aa", "hyundai", 1, 100, 100000.500000
